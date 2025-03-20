@@ -42,12 +42,12 @@ Este projeto é destinado a criação de uma API para gerenciamento eficiente, v
 # Como executar o projeto
 ## Como executar o back-end localmente
 
-Após fazer o download do repositório, abra o Visual Studio Code, crie na raiz do projeto back-end o arquivo **.env** e cole os valores que foram disponibilizados via e-mail junto com o desafio. No terminal, rode o comando: ```docker-compose up -d``` e então o banco de dados será criado assim como o container da API. Ou se preferir rodar sem containers específicos, crie um container postgres e cole os valores respectivos em DATABASE_URL, substituindo user, password, host e database_name
+Basicamente há duas formas que serão explicadas adiante de rodar o backend e realizar testes. Tendo em vista a possibilidade de altos custos sobre cargas massivas pelo transporte, saída e entrada de dados, foi criado um "ambiente de desenvolvimento", onde foi criado um bucket S3 e duas filas SQS para realizar os testes com a carga de planilhas que quiser, não alterando a estrutura da arquitetura mostrada no diagrama acima, apenas agora inserindo no banco de dados postgres. Nada impede que você realize operações na infraestrutura que foi implantada, mas caso queira ter mais controle e visibilidade sobre o processo, aqui vai duas maneiras de rodar localmente o projeto.
 
-Em seguida rode no terminal os seguintes comandos:
+Primeiro, crie um arquivo .env (disponibilizado via e-mail) na raiz do seu projeto e então você poderá ter duas opções:
 
-1. **npx prisma generate** 
-2. **npx prisma migrate dev** 
+1. Rodar com docker-compose: Os valores para **DEVELOPMENT** já irão descomentados então, basta ir no arquivo **docker-compose.yml** e substituir os valores **POSTGRES_USER**, **POSTGRES_PASSWORD**, **POSTGRES_DB** e atribuir os valores corretamente, como por exemplo **POSTGRES_USER=${POSTGRES_USER_ENV_DEV}**; Feito isso, rode o comando ```docker-compose up``` e assim que o container da API estiver de pé, rode o comando ```docker exec -it container_api sh``` e você estará dentro do container da API, e então rode os seguintes comandos: ```npx prisma generate``` e ```npx prisma migrate dev```. Aplicadas as migrations, recomendo **FORTEMENTE** seguir os passos da seção **Observações**, pois já há planilhas com **120 mil** usuários prontos para serem inseridos.
+2. Rodar apenas com container postgres: Crie um container postgres, por exemplo: ```docker run -p 5432:5432 --name desafiourbidev -e POSTGRES_PASSWORD=postgres -d bitnami/postgresql```; Em seguida no seu .env, em DATABASE_URL, substitua o valor do host (database) para localhost e o nome do banco para o nome do seu container; Após isso vá até o DBeaver, se conecte ao container e crie o banco com o nome de sua escolha; Voltando a sua aplicação, rode os seguintes comandos: ```npx prisma generate``` e ```npx prisma migrate dev```; Por fim, rode ```npm run start:dev```. 
 
 Para realizar requisições a API, acesse eu API client, importe as requisições que foram disponibilizadas (neste arquivo ou via e-mail) e a ordem para execução é a seguinte:
 
